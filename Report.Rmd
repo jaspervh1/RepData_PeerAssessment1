@@ -1,0 +1,39 @@
+---
+title: "Activity Exploration"
+author: "Jasper"
+date: "September 17, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+```
+
+## Getting Data
+
+First off, we have to get the data which is given to us in the repository.
+Using `read.csv()` we get a all information in a data frame, and we can use the `lubridate` package to convert the text dates into actual dates.
+```{r data import}
+    unzip("activity.zip")
+    Activities<-read.csv("activity.csv",header=TRUE,na.strings = "NA")
+    Activities$date<-ymd(Activities$date)
+    CleanedActivities<-filter(Activities,!is.na(steps))
+```
+
+The data is now tidy: each row is an observation, and each column is either a value or a description for the observation. It is time to continue the analysis.
+
+## Total number of steps per day
+
+```{r histogram}
+    Days<- CleanedActivities%>%
+        group_by(date)%>%
+        summarize(TotalSteps=sum(steps))
+    ggplot(Days,aes(TotalSteps))+geom_histogram(binwidth = 1000)
+    # mean <- mean(Days$TotalSteps)
+    # median<- median(Days$TotalSteps)
+```
+The mean number of steps per day is `r mean(Days$TotalSteps)` and the median number is `r median(Days$TotalSteps)`. 
+
+## Daily activity pattern
+
