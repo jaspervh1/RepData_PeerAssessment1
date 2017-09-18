@@ -36,4 +36,12 @@ The data is now tidy: each row is an observation, and each column is either a va
 The mean number of steps per day is `r mean(Days$TotalSteps)` and the median number is `r median(Days$TotalSteps)`. 
 
 ## Daily activity pattern
+We use `ggplot` to get the time series for steps per interval.
+```{r timeseries average interval}
+    AverageDay<-CleanedActivities%>%
+        group_by(interval)%>%
+        summarize(AverageInterval=mean(steps,na.remove=TRUE))
+    ggplot(AverageDay,aes(interval,AverageInterval))+geom_line()
+```
 
+##Imputing missing values
