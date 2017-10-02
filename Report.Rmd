@@ -33,7 +33,7 @@ The data is now tidy: each row is an observation, and each column is either a va
     # mean <- mean(Days$TotalSteps)
     # median<- median(Days$TotalSteps)
 ```
-The mean number of steps per day is `r mean(Days$TotalSteps)` and the median number is `r median(Days$TotalSteps)`. 
+The mean number of steps per day is `r mean(Days$TotalSteps,na.rm=TRUE)` and the median number is `r median(Days$TotalSteps,na.rm=TRUE)`. 
 
 ## Daily activity pattern
 We use `ggplot` to get the time series for steps per interval.
@@ -45,3 +45,55 @@ We use `ggplot` to get the time series for steps per interval.
 ```
 
 ##Imputing missing values
+We look at how  missing values were distributed in the original dataset.
+```{r missing values}
+    DayNA<- Activities %>%
+        group_by(date)%>%
+        summarize(CountNA=sum(is.na(steps)))
+        ggplot(DayNA,aes(date,CountNA))+geom_line()
+```
+We see that the only time values are missing, they are missing for a whole day. This happens for 8 days in the period. We will replace each of these days with the average day. 
+First, we define a function which takes `steps` and either leaves it, or if missing replaces it by the average value for that interval.
+Then, we use sapply on the whole dataset.
+```{r replace by average day}
+    FillSteps<-function(steps,TimeInterval){
+        Filler<-NA
+        if(!is.na(steps)) Filler<-steps
+        else Filler<-AverageDay[AverageDay$interval==TimeInterval,]$AverageInterval
+        return(Filler)
+    }
+    FilledActivities<-Activities
+    FilledActivities$steps<-mapply(FillSteps,FilledActivities$steps,FilledActivities$interval)
+```
+Making the histogram again, we find:
+```{r histogram filled data}
+    FilledDays<- FilledActivities%>%
+        group_by(date)%>%
+        summarize(TotalSteps=sum(steps))
+    ggplot(FilledDays,aes(TotalSteps))+geom_histogram(binwidth = 1000)
+    # mean <- mean(Days$TotalSteps)
+    # median<- median(Days$TotalSteps)
+```
+The mean number of steps per day is `r mean(FilledDays$TotalSteps,na.rm=TRUE)` and the median number is `r median(FilledDays$TotalSteps,na.rm=TRUE)`. 
+
+## Differences in activity pattern 
+To see the difference in activity pattern we create a dummy variable (using `mutate()`) on the dataset with missing values imputed. Using `group` to find patterns we get to the following graph.
+```{r Weekdays}
+    WeekPattern<-FilledActivities %>%
+        mutate(Weekday=(wday(date) %in% c(1,7)))
+    WeekPattern<-mutate(WeekPattern,Weekend=ifelse(Weekday,"Weekend","Weekday"))%>%
+        group_by(Weekend,interval)%>%
+        summarize(MeanSteps=mean(steps))
+        ggplot(WeekPattern,aes(x=interval,y=MeanSteps))+geom_line()+facet_wrap(~Weekend)
+```
+
+We see clear differences in patterns between weekdays and weekends.
+
+
+
+
+
+
+
+
+
