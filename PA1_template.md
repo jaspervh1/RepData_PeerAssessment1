@@ -46,7 +46,7 @@ We use `ggplot` to get the time series for steps per interval.
     ggplot(AverageDay,aes(interval,AverageInterval))+geom_line()
 ```
 
-![](PA1_template_files/figure-html/timeseries average interval-1.png)<!-- -->
+![](PA1_template_files/figure-html/timeseries_average_interval-1.png)<!-- -->
 
 ##Imputing missing values
 We look at how  missing values were distributed in the original dataset.
@@ -58,7 +58,7 @@ We look at how  missing values were distributed in the original dataset.
         ggplot(DayNA,aes(date,CountNA))+geom_line()
 ```
 
-![](PA1_template_files/figure-html/missing values-1.png)<!-- -->
+![](PA1_template_files/figure-html/missing_values-1.png)<!-- -->
 We see that the only time values are missing, they are missing for a whole day. This happens for 8 days in the period. We will replace each of these days with the average day. 
 First, we define a function which takes `steps` and either leaves it, or if missing replaces it by the average value for that interval.
 Then, we use sapply on the whole dataset.
@@ -82,7 +82,7 @@ Making the histogram again, we find:
     ggplot(FilledDays,aes(TotalSteps))+geom_histogram(binwidth = 1000)
 ```
 
-![](PA1_template_files/figure-html/histogram filled data-1.png)<!-- -->
+![](PA1_template_files/figure-html/histogram_filled_data-1.png)<!-- -->
 
 ```r
     # mean <- mean(Days$TotalSteps)
